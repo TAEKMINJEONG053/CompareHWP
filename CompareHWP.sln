@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36717.8 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompareHWP", "CompareHWP\CompareHWP.csproj", "{EC62A5F0-F09A-49E1-9F6F-B455373DF52C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckDistance", "CheckDistance\CheckDistance.csproj", "{9EE717EE-4098-4A0C-8BD9-51F61BA11E78}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EC62A5F0-F09A-49E1-9F6F-B455373DF52C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC62A5F0-F09A-49E1-9F6F-B455373DF52C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC62A5F0-F09A-49E1-9F6F-B455373DF52C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC62A5F0-F09A-49E1-9F6F-B455373DF52C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EE717EE-4098-4A0C-8BD9-51F61BA11E78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EE717EE-4098-4A0C-8BD9-51F61BA11E78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EE717EE-4098-4A0C-8BD9-51F61BA11E78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EE717EE-4098-4A0C-8BD9-51F61BA11E78}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7BBA7A35-2D9A-4BCF-89E9-93309648A2CD}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,13 @@
+# Visual Studio
+.vs/
+bin/
+obj/
+
+# NuGet
+packages/
+
+# User-specific
+*.user
+*.suo
+*.cache
+*.log
