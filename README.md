@@ -6,5 +6,5 @@ git commit -m "변경 내용"
 git push
 
 ## 📌 Git 롤백
-git fetch origin
+```bash fetch origin
 git reset --hard origin/main
