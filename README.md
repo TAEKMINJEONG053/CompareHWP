@@ -5,10 +5,7 @@ git add .
 git commit -m "변경 내용"
 git push
 
-## 📌 Git 체크인 기본 순서
+## 📌 Git 롤백
 ```bash
-git status
-git add .
-git commit -m "변경 내용"
-git push
-
+fetch origin
+git reset --hard origin/main
