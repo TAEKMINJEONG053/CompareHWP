@@ -1,10 +1,13 @@
-﻿## 📌 Git 체크인 기본 순서
+﻿﻿## 📌 Git 체크인 기본 순서
 ```bash
 git status
 git add .
 git commit -m "변경 내용"
-git push
+git push -u origin main
+```
 
 ## 📌 Git 롤백
-git fetch origin
+```bash
+fetch origin
 git reset --hard origin/main
+```
