@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,5 +23,14 @@ namespace CompareHWP.Common
         DBSeparator = 3,
         DBBackupRestore = 4,
         LabelPrint,
+    }
+
+    public enum ExportType
+    {
+        Excel,
+        Pdf,
+        Csv,
+        Html,
+        Image,
     }
 }

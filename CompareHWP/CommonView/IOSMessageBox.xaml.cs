@@ -26,9 +26,19 @@ namespace CompareHWP.CommonView
             InitializeComponent();
         }
 
+        /// <summary>
+        /// MessageBoxButton.OKCancel 만 정의되어있음
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="title"></param>
+        /// <param name="buttons"></param>
+        /// <param name="icon"></param>
+        /// <param name="autoCloseSeconds"></param>
+        /// <returns></returns>
         public static bool? Show(
         string message,
         string title = "",
+        MessageBoxButton buttons = MessageBoxButton.OKCancel,
         IOSMessageBoxIcon icon = IOSMessageBoxIcon.None,
         int autoCloseSeconds = 0)
         {
@@ -40,6 +50,7 @@ namespace CompareHWP.CommonView
             window.DataContext = new IOSMessageBoxViewModel(
                 title,
                 message,
+                buttons,
                 icon,
                 autoCloseSeconds,
                 result =>

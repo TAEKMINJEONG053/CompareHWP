@@ -1,5 +1,6 @@
 ﻿using CompareHWP.Common;
 using DevExpress.Mvvm;
+using JVM.ViewCommon.WPF.View.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,13 +8,17 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using static DevExpress.XtraEditors.XtraInputBox;
 
 namespace CompareHWP.CommonViewModel
 {
     public class IOSMessageBoxViewModel : ViewModelBase
     {
+        private MainWindow main = Application.Current.MainWindow as MainWindow;
+
         public string Title
         {
             get => GetValue<string>();
@@ -44,11 +49,26 @@ namespace CompareHWP.CommonViewModel
             set => SetValue(value);
         }
 
+        private Visibility _cancelVisibility;
+        public Visibility CancelVisibility
+        {
+            get => _cancelVisibility;
+            set => SetProperty(ref _cancelVisibility, value, nameof(CancelVisibility));
+        }
+
+        private Visibility _okVisibility;
+        public Visibility OkVisibility
+        {
+            get => _okVisibility;
+            set => SetProperty(ref _okVisibility, value, nameof(OkVisibility));
+        }
+
         public string CountdownText =>
             RemainSeconds > 0 ? $"{RemainSeconds}초 후 자동 종료" : string.Empty;
 
         public DelegateCommand OkCommand { get; }
         public DelegateCommand CancelCommand { get; }
+        public DelegateCommand CopyCommand { get; }
 
         private DispatcherTimer _timer;
         private readonly Action<bool> _closeAction;
@@ -56,6 +76,7 @@ namespace CompareHWP.CommonViewModel
         public IOSMessageBoxViewModel(
             string title,
             string message,
+            MessageBoxButton buttons,
             IOSMessageBoxIcon icon,
             int autoCloseSeconds,
             Action<bool> closeAction)
@@ -95,6 +116,22 @@ namespace CompareHWP.CommonViewModel
 
             OkCommand = new DelegateCommand(() => Close(true));
             CancelCommand = new DelegateCommand(() => Close(false));
+            CopyCommand = new DelegateCommand(Copy);
+
+            switch (buttons)
+            {
+                case MessageBoxButton.OK:
+                    OkVisibility = Visibility.Visible;
+                    CancelVisibility = Visibility.Collapsed;
+                    break;
+                case MessageBoxButton.OKCancel:
+                    OkVisibility = Visibility.Visible;
+                    CancelVisibility = Visibility.Visible;
+                    break;
+                default:
+                    main.ShowAlertControl($"지원하지 않는 버튼 형식입니다.\nbuttons : {buttons}", "미지원", eDialogButtonType.Ok, null, 5000, null, true);
+                    break;
+            }
 
             if (autoCloseSeconds > 0)
                 StartTimer(autoCloseSeconds);
@@ -126,6 +163,15 @@ namespace CompareHWP.CommonViewModel
         {
             _timer?.Stop();
             _closeAction?.Invoke(result);
+        }
+
+        private void Copy()
+        {
+            if (!string.IsNullOrEmpty(Message))
+            {
+                Clipboard.SetText(Message);
+                main.ShowAlertControl($"메시지가 클립보드에 저장되었습니다.", "메시지 복사", eDialogButtonType.Ok, null, 5000, null, true);
+            }
         }
     }
 }

@@ -10,7 +10,7 @@
         xmlns:view="clr-namespace:CompareHWP.View"
         xmlns:converters="clr-namespace:CompareHWP.Helper"
         mc:Ignorable="d"
-        Title="MainWindow"
+        Title="{Binding WindowTitle}"
         Height="600"
         Width="850"
         Loaded="Window_Loaded"
@@ -41,6 +41,12 @@
                 <view:CheckReportSimilarity />
             </dx:DXTabItem>
             <dx:DXTabItem Header="수행 일시 중복 검토">
+                <Label Content="미구현 화면"
+                       HorizontalContentAlignment="Center"
+                       VerticalContentAlignment="Center" 
+                       FontSize="50"
+                       Foreground="Red"
+                       FontWeight="Bold"/>
             </dx:DXTabItem>
         </dx:DXTabControl>
         <!-- 🔥 로딩 오버레이 -->

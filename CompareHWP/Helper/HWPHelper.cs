@@ -1,10 +1,14 @@
-﻿using CompareHWP.ViewModel;
+﻿using CompareHWP.Common;
+using CompareHWP.ViewModel;
+using DevExpress.Entity.Model.Metadata;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using static CompareHWP.ViewModel.CheckReportSimilarityVM;
 
 namespace CompareHWP
 {
@@ -36,6 +40,55 @@ namespace CompareHWP
 
                 return hwp.GetTextFile("TEXT", "");
             }
+            catch (Exception ex)
+            {
+                Log.Info2("Exception", MethodBase.GetCurrentMethod().Name, ex.ToString(), "Exception_Log", true, false);
+                return string.Empty;
+            }
+            finally
+            {
+                hwp.Quit();
+                Marshal.ReleaseComObject(hwp);
+            }
+        }
+
+        /// <summary>
+        /// TODO: 동일하게 HWP 숫자만큼 팝업창 뜨는게 동일함
+        /// </summary>
+        /// <param name="hwpPaths"></param>
+        /// <param name="marker"></param>
+        /// <returns></returns>
+        public static List<DocumentText> ReadAllTextFromHwps(List<string> hwpPaths, string marker)
+        {
+            Type hwpType = Type.GetTypeFromProgID("HWPFrame.HwpObject");
+            dynamic hwp = Activator.CreateInstance(hwpType);
+            var docs = new List<DocumentText>();
+
+            try
+            {
+                hwp.RegisterModule("FilePathCheckDLL", "SecurityModule");
+
+                foreach (var path in hwpPaths)
+                {
+                    hwp.Open(path, "", "forceopen:true;readonly:true");
+
+                    docs.Add(new DocumentText
+                    {
+                        FilePath = path,
+                        FileName = Path.GetFileName(path),
+                        Text = ExtractTextAfter(hwp.GetTextFile("TEXT", ""), marker),
+                    });
+
+                    hwp.Clear(3); // 문서 닫기
+                }
+
+                return docs;
+            }
+            catch (Exception ex)
+            {
+                Log.Info2("Exception", MethodBase.GetCurrentMethod().Name, ex.ToString(), "Exception_Log", true, false);
+                return new List<DocumentText>();
+            }
             finally
             {
                 hwp.Quit();
@@ -46,6 +99,8 @@ namespace CompareHWP
         public static List<DocumentText> LoadDocuments(List<string> filePaths, string marker)
         {
             var docs = new List<DocumentText>();
+
+            //docs = ReadAllTextFromHwps(filePaths, marker);
 
             foreach (var path in filePaths)
             {

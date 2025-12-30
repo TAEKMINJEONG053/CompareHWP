@@ -1,18 +1,18 @@
-﻿using JVM.ViewCommon.WPF.View.Common;
+﻿using CompareHWP.Common;
+using CompareHWP.CommonView;
+using CompareHWP.Helper;
+using CompareHWP.ViewModel;
+using DevExpress.Xpf.Core.FilteringUI;
+using DevExpress.Xpf.Editors;
+using DevExpress.XtraReports.Parameters;
+using JVM.ViewCommon.WPF.View.Common;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace CompareHWP.View
 {
@@ -61,56 +61,125 @@ namespace CompareHWP.View
                     return;
                 }
 
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                var droppedPaths = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-                var addFiles = vm.FileList;
+                var hwpFiles = new List<string>();
+                var notHwpFiles = new List<string>();
+                var duplicateFiles = new List<string>();
 
-                var alreadyAddedFiles = new List<string>();
-                var invalidFiles = new List<string>();
-
-                foreach (var file in files)
+                foreach (var path in droppedPaths)
                 {
-                    var extension = System.IO.Path.GetExtension(file).ToLowerInvariant();
+                    // 1️⃣ 파일인 경우
+                    if (File.Exists(path))
+                    {
+                        if (System.IO.Path.GetExtension(path).Equals(".hwp", StringComparison.OrdinalIgnoreCase))
+                            hwpFiles.Add(path);
+                        else
+                            notHwpFiles.Add(path);
+                    }
+                    // 2️⃣ 폴더인 경우
+                    else if (Directory.Exists(path))
+                    {
+                        var filesInFolder = Directory.GetFiles(
+                            path,
+                            "*.hwp",
+                            SearchOption.AllDirectories // 하위 폴더 포함
+                        );
 
-                    //if (!allowedExtensions.Contains(extension))
-                    //{
-                    //    invalidFiles.Add(file);
-                    //    continue;
-                    //}
+                        hwpFiles.AddRange(filesInFolder);
+                    }
+                }
+
+                // 3️⃣ 중복 제거 (이미 추가된 파일 제외)
+                foreach (var file in hwpFiles.Distinct())
+                {
+                    if (vm.FileList.Any(f => f.FilePath.Equals(file, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        duplicateFiles.Add(file);
+                        continue;
+                    }
 
                     // 파일 크기 계산
                     var fileInfo = new System.IO.FileInfo(file);
                     long sizeBytes = fileInfo.Length;
                     double sizeKb = sizeBytes / 1024.0;
 
-                    if (addFiles.Any(p => p.FilePath == file) == false)
+                    vm.FileList.Add(new CheckReportSimilarityVM.FileItem()
                     {
-                        vm.FileList.Add(new ViewModel.FileItem()
-                        {
-                            FilePath = file,
-                            SizeBytes = sizeBytes,
-                            AddedTime = DateTime.Now
-                        });
-                    }
-                    else
-                    {
-                        alreadyAddedFiles.Add(file);
-                    }
+                        FilePath = file,
+                        SizeBytes = sizeBytes,
+                        AddedTime = DateTime.Now
+                    });
                 }
 
-                if (alreadyAddedFiles.Count > 0 || invalidFiles.Count > 0)
+                if (notHwpFiles.Count > 0 || duplicateFiles.Count > 0)
                 {
                     var message = new List<string>();
 
-                    if (alreadyAddedFiles.Count > 0)
-                        message.Add($"다음 파일들은 이미 목록에 추가되어 있습니다.\n{string.Join("\n", alreadyAddedFiles)}");
+                    if (duplicateFiles.Count > 0)
+                        message.Add($"다음 파일들은 이미 목록에 추가되어 있습니다.\n{string.Join("\n", duplicateFiles)}");
 
-                    if (invalidFiles.Count > 0)
-                        message.Add($"다음 파일들은 허용되지 않는 형식입니다.\n{string.Join("\n", invalidFiles)}");
+                    if (notHwpFiles.Count > 0)
+                        message.Add($"다음 파일들은 허용되지 않는 형식입니다.\n{string.Join("\n", notHwpFiles)}");
 
-                    var main = System.Windows.Application.Current.MainWindow as MainWindow;
-                    main.ShowAlertControl(string.Join("\n\n", message), "파일 업로드 에러", eDialogButtonType.Ok, null, 5000, null, true);
+                    IOSMessageBox.Show(string.Join("\n\n", message), "파일 추가 오류", MessageBoxButton.OK, Common.IOSMessageBoxIcon.Warning);
+
+                    //var main = System.Windows.Application.Current.MainWindow as MainWindow;
+                    //main.ShowAlertControl(string.Join("\n\n", message), "파일 업로드 에러", eDialogButtonType.Ok, null, 5000, null, true);
                 }
+
+                //string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                //var addFiles = vm.FileList;
+
+                //var alreadyAddedFiles = new List<string>();
+                //var invalidFiles = new List<string>();
+
+                //foreach (var file in files)
+                //{
+                //    var extension = System.IO.Path.GetExtension(file).ToLowerInvariant();
+
+                //    if (!allowedExtensions.Contains(extension))
+                //    {
+                //        invalidFiles.Add(file);
+                //        continue;
+                //    }
+
+                //    // 파일 크기 계산
+                //    var fileInfo = new System.IO.FileInfo(file);
+                //    long sizeBytes = fileInfo.Length;
+                //    double sizeKb = sizeBytes / 1024.0;
+
+                //    if (addFiles.Any(p => p.FilePath == file) == false)
+                //    {
+                //        vm.FileList.Add(new ViewModel.FileItem()
+                //        {
+                //            FilePath = file,
+                //            SizeBytes = sizeBytes,
+                //            AddedTime = DateTime.Now
+                //        });
+                //    }
+                //    else
+                //    {
+                //        alreadyAddedFiles.Add(file);
+                //    }
+                //}
+
+                //if (alreadyAddedFiles.Count > 0 || invalidFiles.Count > 0)
+                //{
+                //    var message = new List<string>();
+
+                //    if (alreadyAddedFiles.Count > 0)
+                //        message.Add($"다음 파일들은 이미 목록에 추가되어 있습니다.\n{string.Join("\n", alreadyAddedFiles)}");
+
+                //    if (invalidFiles.Count > 0)
+                //        message.Add($"다음 파일들은 허용되지 않는 형식입니다.\n{string.Join("\n", invalidFiles)}");
+
+                //    IOSMessageBox.Show(string.Join("\n\n", message), "파일 추가 오류", MessageBoxButton.OK, Common.IOSMessageBoxIcon.Warning);
+
+                //    var main = System.Windows.Application.Current.MainWindow as MainWindow;
+                //    main.ShowAlertControl(string.Join("\n\n", message), "파일 업로드 에러", eDialogButtonType.Ok, null, 5000, null, true);
+                //}
             }
             catch (Exception ex)
             {
@@ -119,6 +188,43 @@ namespace CompareHWP.View
             finally
             {
                 vm._busyService.IsBusy = false;
+            }
+        }
+
+        private void UserControl_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                e.Handled = true;
+
+                vm.RemoveFileClick(null);
+            }
+        }
+
+        private void Button_Export_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedItem = ComboBoxEdit_Format.SelectedItem as ComboBoxEditItem;
+
+            switch (selectedItem.Tag.ToString())
+            {
+                case "excel":
+                    ExportHelper.ExportData(GridControl_SimilarityResults, ExportType.Excel);
+                    break;
+                case "pdf":
+                    ExportHelper.ExportData(GridControl_SimilarityResults, ExportType.Pdf);
+                    break;
+                case "csv":
+                    ExportHelper.ExportData(GridControl_SimilarityResults, ExportType.Csv);
+                    break;
+                case "html":
+                    ExportHelper.ExportData(GridControl_SimilarityResults, ExportType.Html);
+                    break;
+                case "image":
+                    ExportHelper.ExportData(GridControl_SimilarityResults, ExportType.Image);
+                    break;
+                default:
+                    //vm.main.ShowAlertControl($"parameter : {selectedItem.Tag}", "정의되지 않음", eDialogButtonType.Ok, null, 5000, null, true);
+                    break;
             }
         }
     }

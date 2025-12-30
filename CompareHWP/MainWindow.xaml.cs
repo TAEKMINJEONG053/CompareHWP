@@ -99,7 +99,7 @@ namespace CompareHWP
                 sb.AppendLine("AlertControl 생성");
                 sb.AppendLine($"FileName : {st.DeclaringType?.Name}, MethodName : {st.Name}");
                 sb.AppendLine($"Caption : {caption}, text : {text}, Delay : {autoFormDelay}");
-                //Log.Info(sb.ToString());
+                Log.Info(sb.ToString());
 
                 if (avoidDuplication
                     && (existAlertForm = alertControl.AlertFormList.FirstOrDefault(p => p.Tag != null && (p.Tag as AlertFormEx).ScreenDiv == screenDiv)) != null)  //LabelPrint 메시지이면 이미 떠있는 AlertControl을 찾음
@@ -132,7 +132,7 @@ namespace CompareHWP
             }
             catch (Exception ex)
             {
-                //Log.Info2("Exception", MethodBase.GetCurrentMethod().Name, ex.ToString(), LocalProperty.ExceptionLogFileName, true, false);
+                Log.Info2("Exception", MethodBase.GetCurrentMethod().Name, ex.ToString(), "Exception_Log", true, false);
             }
 
             return alertForm;
@@ -195,7 +195,10 @@ namespace CompareHWP
             {
                 string message = "다음 파일들은 이미 목록에 추가되어 있습니다.\n" +
                     string.Join("\n", alreadyAddedFiles);
-                MessageBox.Show(message, "파일 중복", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                IOSMessageBox.Show(message, "파일 중복", MessageBoxButton.OK, IOSMessageBoxIcon.Question);
+
+                //MessageBox.Show(message, "파일 중복", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 

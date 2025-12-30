@@ -1,4 +1,5 @@
-﻿using CompareHWP.Helper;
+﻿using CompareHWP.Common;
+using CompareHWP.Helper;
 using CompareHWP.Services;
 using DevExpress.Mvvm;
 using System.Collections.Generic;
@@ -10,6 +11,8 @@ namespace CompareHWP
     public class MainWindowVM : ViewModelBase
     {
         private readonly BusyService _busyService = BusyService.Instance;
+
+        public string WindowTitle => $"세종경영연구소 도우미 v{AssemblyVersionHelper.InformationalVersion}";
 
         private bool _isBusy;
         public bool IsBusy
